@@ -35,7 +35,27 @@ const updateGearItemIntoDb = async (
   })
 };
 
+const deleteGearItemFromDb = async (id: string, providerId: string) => {
+    const gearItem = await prisma.gearItem.findUnique({
+        where:{id}
+    });
+
+    if(!gearItem){
+        throw new Error("Gear item not found");
+    }
+    if(gearItem.providerId !== providerId){
+        throw new Error("You are not authorized to delete this gear item");
+}
+
+    return await prisma.gearItem.delete({
+        where:{
+            id
+        }
+    });
+};
+
 export const gearService = {
   createGearItemIntoDb,
   updateGearItemIntoDb,
+    deleteGearItemFromDb,
 };
