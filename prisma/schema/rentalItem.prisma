@@ -1,0 +1,13 @@
+model rentalItem{
+  id         String        @id @default(uuid())
+  quantity   Int
+  price      Decimal
+  orderId    String
+  order      RentalOrders @relation(fields: [orderId], references: [id])
+  gearItemId String
+  gearItem   GearItem     @relation(fields: [gearItemId], references: [id])
+
+  createdAt  DateTime      @default(now())
+
+  @@map("rental_items")
+}
