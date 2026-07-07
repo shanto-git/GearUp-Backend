@@ -16,6 +16,18 @@ const createGearItem = catchAsync(async(req:Request, res:Response)=>{
     })
 })
 
+const updateGearItem = catchAsync(async(req:Request, res:Response)=>{
+    const result = await gearService.updateGearItemIntoDb(req.params.id as string, req.body, req.user?.id as string);
+
+    sendResponse(res,{
+        success:true,
+        statusCode: httpStatus.OK,
+        message: "Gear item updated successfully",
+        data: result
+    })
+})
+
 export const gearController = {
-    createGearItem
+    createGearItem,
+    updateGearItem
 }
