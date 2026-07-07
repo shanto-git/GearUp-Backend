@@ -4,7 +4,7 @@ model GearItem{
   name        String
   description String
   brand       String
-  price       Decimal
+  pricePerDay Decimal       @db.Decimal(10, 2)
   stock       Int
   isActive    Boolean       @default(true)
 
