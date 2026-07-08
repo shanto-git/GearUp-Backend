@@ -22,7 +22,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 app.use("/api/auth", authRoutes, userRoute);
-app.use("/api/provider", gearItemRoute);
+app.use("/api/provider", gearItemRoute, renalRoute);
 app.use("/api", gearItemRoute);
 app.use("/", categoryRoute)
 app.use("/api/rentals", renalRoute)

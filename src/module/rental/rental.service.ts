@@ -6,7 +6,7 @@ const createRentalOrderIntoDb = async (
   customerId: string,
 ) => {
   console.log("Customer ID:", customerId);
-console.log("Payload:", payload);
+  console.log("Payload:", payload);
   const { startDate, endDate, gearItemId } = payload;
 
   await prisma.user.findFirstOrThrow({
@@ -63,23 +63,72 @@ console.log("Payload:", payload);
   return result;
 };
 
-const getMyRentalIntoDb = async (customerId:string)=>{
+const getMyRentalIntoDb = async (customerId: string) => {
   const result = await prisma.rentalOrder.findMany({
-    where:{
-       customerId :customerId
+    where: {
+      customerId: customerId,
     },
-    orderBy:{
-      createdAt:"desc"
+    orderBy: {
+      createdAt: "desc",
     },
-    include:{
-      gearItem:true,
+    include: {
+      gearItem: {
+        select: {
+          name: true,
+          category: {
+            select: {
+              name: true,
+            },
+          },
+        },
+      },
     },
-    
   });
-  return result
-}
+  return result;
+};
+
+const getRentalByIdIntoDb = async (rentalId: string, customerId: string) => {
+  const result = await prisma.rentalOrder.findFirstOrThrow({
+    where: {
+      id: rentalId,
+      customerId: customerId,
+    },
+    include: {
+      gearItem: true,
+    },
+  });
+  return result;
+};
+
+const getProviderIncomingOrderIntoDb = async (providerId: string) => {
+  const result = await prisma.rentalOrder.findMany({
+    where: {
+      gearItem: {
+        providerId: providerId,
+      },
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+    include: {
+      gearItem: true,
+      customer: {
+        select: {
+          name: true,
+          email: true,
+        },
+      },
+    },
+  });
+  if (result.length === 0) {
+    throw new Error("No rental orders found for this provider");
+  }
+  return result;
+};
 
 export const rentalService = {
   createRentalOrderIntoDb,
-  getMyRentalIntoDb
+  getMyRentalIntoDb,
+  getRentalByIdIntoDb,
+  getProviderIncomingOrderIntoDb,
 };
