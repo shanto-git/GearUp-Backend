@@ -5,7 +5,8 @@ import { sendResponse } from "../../utils/sendResponse";
 import httpStatus from "http-status"
 
 const createRentalOrder = catchAsync(async(req:Request, res:Response)=>{
-    const result = await rentalService.createRentalOrderIntoDb(req.body);
+    const result = await rentalService.createRentalOrderIntoDb(req.body, req.user?.id as string);
+    console.log(req.user);
 
     sendResponse(res, {
         success:true,

@@ -1,21 +1,22 @@
 model GearItem{
-  id          String    @id @default(uuid())
-  photo       String
-  name        String
-  description String
-  brand       String
-  pricePerDay Decimal   @db.Decimal(10, 2)
-  stock       Int
-  isActive    Boolean   @default(true)
+  id           String         @id @default(uuid())
+  photo        String
+  name         String
+  description  String
+  brand        String
+  pricePerDay  Decimal        @db.Decimal(10, 2)
+  stock        Int
+  isActive     Boolean        @default(true)
 
-  categoryId  String
-  category    Category @relation(fields: [categoryId],references: [id], onDelete: Restrict)
-  provider    User     @relation(fields: [providerId], references: [id])
-  providerId  String
-  reviews     review[]
+  categoryId   String
+  category     Category      @relation(fields: [categoryId],references: [id], onDelete: Restrict)
+  provider     User          @relation(fields: [providerId], references: [id])
+  providerId   String
+  rentalOrders RentalOrder[]
+  reviews      review[]
 
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
 
   @@map("gear_items")
 }

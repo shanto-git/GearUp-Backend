@@ -1,8 +1,13 @@
 import { prisma } from "../../lib/prisma";
 import { IRentalOrder } from "./rental.interface";
 
-const createRentalOrderIntoDb = async (payload: IRentalOrder) => {
-  const { customerId, startDate, endDate, gearItemId } = payload;
+const createRentalOrderIntoDb = async (
+  payload: IRentalOrder,
+  customerId: string,
+) => {
+  console.log("Customer ID:", customerId);
+console.log("Payload:", payload);
+  const { startDate, endDate, gearItemId } = payload;
 
   await prisma.user.findFirstOrThrow({
     where: {
@@ -10,18 +15,15 @@ const createRentalOrderIntoDb = async (payload: IRentalOrder) => {
     },
   });
 
-  
-
   const product = await prisma.gearItem.findUniqueOrThrow({
     where: {
       id: gearItemId,
     },
   });
 
-   if (product.isActive) {
+  if (!product.isActive) {
     throw new Error("Gear item is inactive");
   }
-
 
   if (product.stock <= 0) {
     throw new Error("Gear item is out of stock");
@@ -42,11 +44,20 @@ const createRentalOrderIntoDb = async (payload: IRentalOrder) => {
 
   const result = await prisma.rentalOrder.create({
     data: {
-      customerId,
+      gearItem: {
+        connect: {
+          id: payload.gearItemId,
+        },
+      },
+      customer: {
+        connect: {
+          id: customerId,
+        },
+      },
       startDate: start,
       endDate: end,
       totalPrice,
-      status:"PENDING"
+      status: "PENDING",
     },
   });
   return result;
