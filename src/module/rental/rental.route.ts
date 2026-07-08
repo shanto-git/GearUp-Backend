@@ -5,6 +5,7 @@ import { Role } from "../../../generated/prisma/enums";
 
 const router = Router();
 
-router.post("/",auth(Role.CUSTOMER), rentalController.createRentalOrder);
+router.post("/", auth(Role.CUSTOMER), rentalController.createRentalOrder);
+router.get("/", auth(), rentalController.getMyRental);
 
 export const renalRoute = router;
