@@ -16,6 +16,18 @@ const createGearItem = catchAsync(async(req:Request, res:Response)=>{
     })
 })
 
+const getAllGearItems = catchAsync(async (req: Request, res: Response) => {
+  // সম্পূর্ণ req.query অবজেক্টটি সরাসরি সার্ভিসে পাঠিয়ে দেওয়া হচ্ছে
+  const result = await gearService.getAllGearItemsFromDb(req.query);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "Gear items fetched successfully",
+    data: result,
+  });
+});
+
 const updateGearItem = catchAsync(async(req:Request, res:Response)=>{
     const result = await gearService.updateGearItemIntoDb(req.params.id as string, req.body, req.user?.id as string);
 
@@ -41,5 +53,6 @@ const deleteGearItem = catchAsync(async(req:Request, res:Response)=>{
 export const gearController = {
     createGearItem,
     updateGearItem,
-    deleteGearItem
+    deleteGearItem,
+    getAllGearItems
 }

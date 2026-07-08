@@ -10,9 +10,10 @@ const getMyProfileFromDb = async(userId:string)=>{
             password:true
         },
         include:{
-            profile:true
+            profile:true,
         }
     })
+    return user
 }
 
 const updateMyProfileIntoDb = async (userId:string, payload:any)=>{

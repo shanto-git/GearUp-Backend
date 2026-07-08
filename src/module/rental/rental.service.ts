@@ -1,0 +1,57 @@
+import { prisma } from "../../lib/prisma";
+import { IRentalOrder } from "./rental.interface";
+
+const createRentalOrderIntoDb = async (payload: IRentalOrder) => {
+  const { customerId, startDate, endDate, gearItemId } = payload;
+
+  await prisma.user.findFirstOrThrow({
+    where: {
+      id: customerId,
+    },
+  });
+
+  
+
+  const product = await prisma.gearItem.findUniqueOrThrow({
+    where: {
+      id: gearItemId,
+    },
+  });
+
+   if (product.isActive) {
+    throw new Error("Gear item is inactive");
+  }
+
+
+  if (product.stock <= 0) {
+    throw new Error("Gear item is out of stock");
+  }
+
+  const start = new Date(startDate);
+  const end = new Date(endDate);
+
+  if (end <= start) {
+    throw new Error("Invalid rental Date");
+  }
+
+  const totalDays = Math.ceil(
+    (end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24),
+  );
+
+  const totalPrice = totalDays * product.pricePerDay.toNumber();
+
+  const result = await prisma.rentalOrder.create({
+    data: {
+      customerId,
+      startDate: start,
+      endDate: end,
+      totalPrice,
+      status:"PENDING"
+    },
+  });
+  return result;
+};
+
+export const rentalService = {
+  createRentalOrderIntoDb,
+};

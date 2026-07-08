@@ -1,7 +1,6 @@
 import { Decimal } from "@prisma/client/runtime/client";
 
 export interface IGearItem {
-  id: string;
   photo: string;
   name: string;
   description: string;
@@ -9,7 +8,10 @@ export interface IGearItem {
   pricePerDay: Decimal;
   stock: number;
   isActive: boolean;
-  providerId: string;
-  createdAt: Date;
-  updatedAt: Date;
+
+  category: {
+    name: string;
+    slug: string;
+    description?: string;
+  };
 }
