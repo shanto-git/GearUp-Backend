@@ -21,8 +21,9 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-app.use("/api/auth", authRoutes, userRoute);
+app.use("/api/admin", userRoute)
 app.use("/api/provider", gearItemRoute, renalRoute);
+app.use("/api/auth", authRoutes, userRoute);
 app.use("/api", gearItemRoute);
 app.use("/", categoryRoute)
 app.use("/api/rentals", renalRoute)
