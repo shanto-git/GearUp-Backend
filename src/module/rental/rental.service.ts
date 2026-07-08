@@ -1,5 +1,7 @@
+import { OrderStatus } from "../../../generated/prisma/enums";
 import { prisma } from "../../lib/prisma";
 import { IRentalOrder } from "./rental.interface";
+
 
 const createRentalOrderIntoDb = async (
   payload: IRentalOrder,
@@ -126,9 +128,44 @@ const getProviderIncomingOrderIntoDb = async (providerId: string) => {
   return result;
 };
 
+const editRentalStatusIntoDb = async (
+  rentalId: string,
+  providerId: string,
+  payload: { status: string } 
+) => {
+
+  const rentalOrder = await prisma.rentalOrder.findUnique({
+    where: {
+      id: rentalId,
+    },
+    include: {
+      gearItem: true,
+    },
+  });
+
+  if (!rentalOrder) {
+    throw new Error("Rental order not found");
+  }
+
+  if (rentalOrder.gearItem.providerId !== providerId) {
+    throw new Error("You are not authorized to update this order status");
+  }
+  const result = await prisma.rentalOrder.update({
+    where: {
+      id: rentalId,
+    },
+    data: {
+      OrderStatus:payload.status as OrderStatus,
+    },
+  });
+
+  return result;
+};
+
 export const rentalService = {
   createRentalOrderIntoDb,
   getMyRentalIntoDb,
   getRentalByIdIntoDb,
   getProviderIncomingOrderIntoDb,
+  editRentalStatusIntoDb
 };

@@ -60,9 +60,28 @@ const getProviderIncomingOrder = catchAsync(
   },
 );
 
+const updateRentalStatus = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const providerId = req.user?.id as string;
+
+  const result = await rentalService.editRentalStatusIntoDb(
+    id as string,
+    providerId,
+    req.body
+  );
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "Rental order status updated successfully",
+    data: result,
+  });
+});
+
 export const rentalController = {
   createRentalOrder,
   getMyAllRental,
   getMyRental,
   getProviderIncomingOrder,
+  updateRentalStatus
 };
