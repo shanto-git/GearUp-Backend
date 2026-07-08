@@ -1,10 +1,7 @@
 import { prisma } from "../../lib/prisma";
 import { IGearItem } from "./gear.interface";
 
-const createGearItemIntoDb = async (
-  payload: IGearItem,
-  providerId: string
-) => {
+const createGearItemIntoDb = async (payload: IGearItem, providerId: string) => {
   const { category, ...gearData } = payload;
 
   return prisma.gearItem.create({
@@ -16,11 +13,16 @@ const createGearItemIntoDb = async (
         },
       },
       category: {
-        create: {
-          name: category.name,
+        connectOrCreate:{
+          where:{
+            slug: category.slug,
+          },
+          create:{
+            name: category.name,
           slug: category.slug,
           description: category.description,
-        },
+          },
+        }
       },
     },
     include: {
@@ -74,6 +76,40 @@ const getAllGearItemsFromDb = async (query: Record<string, any>) => {
   return result;
 };
 
+const getGearItemByIdIntoDb = async (gearId:string)=>{
+  const transactionResult = await prisma.$transaction(
+    async (tx)=>{
+      const gearItem = await tx.gearItem.findFirstOrThrow({
+        where:{
+          id: gearId
+        },
+        include:{
+          reviews:{
+            orderBy:{
+              createdAt:"desc"
+            },
+            include:{
+              customer:{
+                select:{
+                  name:true,
+                  email:true
+                }
+              }
+            }
+          },
+          _count:{
+            select:{
+              reviews:true
+            }
+          }
+        }
+      });
+      return gearItem
+    }
+  )
+  return transactionResult
+}
+
 const updateGearItemIntoDb = async (
   id: string,
   payload: IGearItem,
@@ -91,36 +127,56 @@ const updateGearItemIntoDb = async (
     throw new Error("You are not authorized to update this gear item");
   }
 
+  const { category, ...gearData } = payload;
+
   return await prisma.gearItem.update({
-    where:{
-        id,
+    where: {
+      id,
     },
-    data: payload,
-  })
+    data: {
+      ...gearData,
+      ...(category
+        ? {
+            category: {
+              update: {
+                name: category.name,
+                slug: category.slug,
+                description: category.description,
+              },
+            },
+          }
+        : {}),
+    },
+    include: {
+      category: true,
+      provider: true,
+    },
+  });
 };
 
 const deleteGearItemFromDb = async (id: string, providerId: string) => {
-    const gearItem = await prisma.gearItem.findUnique({
-        where:{id}
-    });
+  const gearItem = await prisma.gearItem.findUnique({
+    where: { id },
+  });
 
-    if(!gearItem){
-        throw new Error("Gear item not found");
-    }
-    if(gearItem.providerId !== providerId){
-        throw new Error("You are not authorized to delete this gear item");
-}
+  if (!gearItem) {
+    throw new Error("Gear item not found");
+  }
+  if (gearItem.providerId !== providerId) {
+    throw new Error("You are not authorized to delete this gear item");
+  }
 
-    return await prisma.gearItem.delete({
-        where:{
-            id
-        }
-    });
+  return await prisma.gearItem.delete({
+    where: {
+      id,
+    },
+  });
 };
 
 export const gearService = {
   createGearItemIntoDb,
   updateGearItemIntoDb,
-    deleteGearItemFromDb,
-    getAllGearItemsFromDb
+  deleteGearItemFromDb,
+  getAllGearItemsFromDb,
+  getGearItemByIdIntoDb
 };

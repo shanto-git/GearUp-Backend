@@ -8,7 +8,6 @@ export interface IGearItem {
   pricePerDay: Decimal;
   stock: number;
   isActive: boolean;
-
   category: {
     name: string;
     slug: string;
