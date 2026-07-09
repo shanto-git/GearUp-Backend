@@ -22,7 +22,7 @@ const getAllUsersFromDb = async () => {
 
 const updateUserStatusIntoDb = async (
   userId: string,
-  payload: { activeStatus: string } 
+  payload: { activeStatus: string },
 ) => {
   await prisma.user.findUniqueOrThrow({
     where: {
@@ -56,17 +56,17 @@ const getAllGearIntoDb = async () => {
       createdAt: "desc",
     },
     include: {
-      provider:{
-        select:{
-            id:true,
-            name:true,
-            email:true,
-            activeStatus:true,
-        }
+      provider: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          activeStatus: true,
+        },
       },
       _count: {
         select: {
-          rentalOrders:true,
+          rentalOrders: true,
           reviews: true,
         },
       },
@@ -76,11 +76,46 @@ const getAllGearIntoDb = async () => {
   return result;
 };
 
+const getAllRentalOrdersIntoDb = async () => {
+  const result = await prisma.rentalOrder.findMany({
+    orderBy: {
+      createdAt: "desc",
+    },
+    include: {
+      customer:{
+        select:{
+            id:true,
+            name:true,
+            profile:{
+                select:{
+                    profilePhoto:true,
+                },
+            },
+        }
+      },
+      gearItem: {
+        select: {
+          id: true,
+          name: true,
+          brand: true,
+          pricePerDay: true,
+          provider:{
+            select:{
+                id:true,
+                name:true
+            }
+          }
+        },
+      },
+    },
+  });
 
-
+  return result;
+};
 
 export const adminService = {
-    getAllUsersFromDb,
-    updateUserStatusIntoDb,
-    getAllGearIntoDb
-}
+  getAllUsersFromDb,
+  updateUserStatusIntoDb,
+  getAllGearIntoDb,
+  getAllRentalOrdersIntoDb,
+};

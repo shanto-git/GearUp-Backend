@@ -3,12 +3,11 @@ import { Role } from "../../../generated/prisma/enums";
 import { auth } from "../../middleware/auth";
 import { adminController } from "./admin.controller";
 
-
-const router = Router()
+const router = Router();
 
 router.get("/users", auth(Role.ADMIN), adminController.getAllUsers);
 router.patch("/users/:id", auth("ADMIN"), adminController.updateUserStatus);
-router.get("/gear", auth(Role.ADMIN), adminController.getAllGear)
+router.get("/gear", auth(Role.ADMIN), adminController.getAllGear);
+router.get("/rentals", auth(Role.ADMIN), adminController.getAllRentalOrders);
 
-
-export const adminRoute = router
+export const adminRoute = router;
