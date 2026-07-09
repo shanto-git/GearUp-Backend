@@ -10,7 +10,6 @@ router.get("/me", auth(Role.ADMIN,Role.CUSTOMER,Role.PROVIDER), userController.g
 
 router.put("/my-profile", auth(Role.ADMIN,Role.CUSTOMER,Role.PROVIDER), userController.updateMyProfile);
 
-router.get("/users", auth(Role.ADMIN), userController.getAllUsers);
-router.patch("/users/:id", auth("ADMIN"), userController.updateUserStatus);
+
 
 export const userRoute = router
