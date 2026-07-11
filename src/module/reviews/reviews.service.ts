@@ -9,7 +9,7 @@ const createReviewIntoDb = async (payload: ICreateReviewPayload, customerId: str
     where: {
       customerId:customerId,
       gearItemId: gearItemId,
-      status: "COMPLETED", 
+      OrderStatus: "CONFIRMED", 
     },
   });
 

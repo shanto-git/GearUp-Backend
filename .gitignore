@@ -6,3 +6,5 @@ generated
 /src/generated/prisma
 
 /generated/prisma[D
+
+.vercel
