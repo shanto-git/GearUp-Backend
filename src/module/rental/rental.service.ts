@@ -7,20 +7,14 @@ const createRentalOrderIntoDb = async (
   payload: IRentalOrder,
   customerId: string,
 ) => {
-  console.log("Customer ID:", customerId);
-  console.log("Payload:", payload);
   const { startDate, endDate, gearItemId } = payload;
 
-  await prisma.user.findFirstOrThrow({
-    where: {
-      id: customerId,
-    },
+  await prisma.user.findUniqueOrThrow({
+    where: { id: customerId },
   });
 
   const product = await prisma.gearItem.findUniqueOrThrow({
-    where: {
-      id: gearItemId,
-    },
+    where: { id: gearItemId },
   });
 
   if (!product.isActive) {
@@ -42,26 +36,37 @@ const createRentalOrderIntoDb = async (
     (end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24),
   );
 
-  const totalPrice = totalDays * product.pricePerDay.toNumber();
+  const pricePerDay = Number(product.pricePerDay);
+  const totalPrice = totalDays * pricePerDay;
 
-  const result = await prisma.rentalOrder.create({
-    data: {
-      gearItem: {
-        connect: {
-          id: payload.gearItemId,
+  const result = await prisma.$transaction(async (tx) => {
+    const order = await tx.rentalOrder.create({
+      data: {
+        startDate: start,
+        endDate: end,
+        totalPrice,
+        OrderStatus: OrderStatus.PLACED, 
+        customer: {
+          connect: { id: customerId },
+        },
+        gearItem: {
+          connect: { id: gearItemId },
         },
       },
-      customer: {
-        connect: {
-          id: customerId,
+    });
+
+    await tx.gearItem.update({
+      where: { id: gearItemId },
+      data: {
+        stock: {
+          decrement: 1,
         },
       },
-      startDate: start,
-      endDate: end,
-      totalPrice,
-      status: "PENDING",
-    },
+    });
+
+    return order;
   });
+
   return result;
 };
 

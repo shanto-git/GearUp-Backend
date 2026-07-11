@@ -11,5 +11,4 @@ router.get("/me", auth(Role.ADMIN,Role.CUSTOMER,Role.PROVIDER), userController.g
 router.put("/my-profile", auth(Role.ADMIN,Role.CUSTOMER,Role.PROVIDER), userController.updateMyProfile);
 
 
-
 export const userRoute = router

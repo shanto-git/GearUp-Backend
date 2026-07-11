@@ -8,6 +8,8 @@ import { gearItemRoute } from "./module/gearItem/gear.route";
 import { renalRoute } from "./module/rental/rental.route";
 import { categoryRoute } from "./module/category/category.route";
 import { adminRoute } from "./module/admin/admin.route";
+import { reviewRoutes } from "./module/reviews/reviews.route";
+import { paymentRoute } from "./module/payment/payment.route";
 
 const app: Application = express();
 
@@ -28,5 +30,7 @@ app.use("/api/auth", authRoutes, userRoute);
 app.use("/api", gearItemRoute);
 app.use("/", categoryRoute)
 app.use("/api/rentals", renalRoute)
+app.use("/api/reviews", reviewRoutes)
+app.use("/api/payments", paymentRoute)
 
 export default app;
