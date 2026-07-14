@@ -1,7 +1,6 @@
-import { OrderStatus } from "../../../generated/prisma/enums";
+import { OrderStatus } from "@prisma/client";
 import { prisma } from "../../lib/prisma";
 import { IRentalOrder } from "./rental.interface";
-
 
 const createRentalOrderIntoDb = async (
   payload: IRentalOrder,
@@ -45,7 +44,7 @@ const createRentalOrderIntoDb = async (
         startDate: start,
         endDate: end,
         totalPrice,
-        OrderStatus: OrderStatus.PLACED, 
+        OrderStatus: OrderStatus.PLACED,
         customer: {
           connect: { id: customerId },
         },
@@ -136,9 +135,8 @@ const getProviderIncomingOrderIntoDb = async (providerId: string) => {
 const editRentalStatusIntoDb = async (
   rentalId: string,
   providerId: string,
-  payload: { status: string } 
+  payload: { status: string },
 ) => {
-
   const rentalOrder = await prisma.rentalOrder.findUnique({
     where: {
       id: rentalId,
@@ -160,7 +158,7 @@ const editRentalStatusIntoDb = async (
       id: rentalId,
     },
     data: {
-      OrderStatus:payload.status as OrderStatus,
+      OrderStatus: payload.status as OrderStatus,
     },
   });
 
@@ -172,5 +170,5 @@ export const rentalService = {
   getMyRentalIntoDb,
   getRentalByIdIntoDb,
   getProviderIncomingOrderIntoDb,
-  editRentalStatusIntoDb
+  editRentalStatusIntoDb,
 };

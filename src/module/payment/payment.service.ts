@@ -1,7 +1,7 @@
 import Stripe from "stripe";
 import config from "../../config";
 import { prisma } from "../../lib/prisma";
-import { OrderStatus, PaymentProvider, PaymentStatus } from "../../../generated/prisma/enums";
+import { OrderStatus, PaymentProvider, PaymentStatus } from "@prisma/client";
 
 const stripe = new Stripe(config.stripe_secret_key as string, {
   apiVersion: "2026-06-24.dahlia",
@@ -16,7 +16,7 @@ const createPaymentIntentInDb = async (payload: { rentalOrderId: string }) => {
 
   if (rentalOrder.OrderStatus !== OrderStatus.CONFIRMED) {
     throw new Error(
-      "You can only pay for orders that have been CONFIRMED by the provider."
+      "You can only pay for orders that have been CONFIRMED by the provider.",
     );
   }
 
@@ -59,7 +59,7 @@ const createPaymentIntentInDb = async (payload: { rentalOrderId: string }) => {
 const handleWebhookEvent = async (event: any) => {
   if (event.type === "payment_intent.succeeded") {
     const paymentIntent = event.data.object;
-    
+
     const rentalOrderId = paymentIntent.metadata.rentalOrderId;
     const transactionId = paymentIntent.id;
 
@@ -72,26 +72,24 @@ const handleWebhookEvent = async (event: any) => {
     }
 
     await prisma.$transaction(async (tx) => {
-      
       await tx.payment.update({
         where: { rentalOrderId: rentalOrderId },
         data: {
           status: PaymentStatus.COMPLETED,
-          transactionId: transactionId, 
-          paidAt: new Date(),       
+          transactionId: transactionId,
+          paidAt: new Date(),
         },
       });
 
       await tx.rentalOrder.update({
         where: { id: rentalOrderId },
         data: {
-          OrderStatus: OrderStatus.PAID, 
+          OrderStatus: OrderStatus.PAID,
         },
       });
     });
   }
 };
-
 
 const getMyPaymentHistoryFromDb = async (customerId: string) => {
   const result = await prisma.payment.findMany({
@@ -106,11 +104,14 @@ const getMyPaymentHistoryFromDb = async (customerId: string) => {
   return result;
 };
 
-const getPaymentDetailsByIdFromDb = async (paymentId: string, customerId: string) => {
+const getPaymentDetailsByIdFromDb = async (
+  paymentId: string,
+  customerId: string,
+) => {
   const result = await prisma.payment.findUniqueOrThrow({
     where: {
       id: paymentId,
-      customerId: customerId, 
+      customerId: customerId,
     },
     include: {
       rentalOrder: {

@@ -1,4 +1,4 @@
-import { Status } from "../../../generated/prisma/enums";
+import { Status } from "@prisma/client";
 import { prisma } from "../../lib/prisma";
 
 const getAllUsersFromDb = async () => {
@@ -82,16 +82,16 @@ const getAllRentalOrdersIntoDb = async () => {
       createdAt: "desc",
     },
     include: {
-      customer:{
-        select:{
-            id:true,
-            name:true,
-            profile:{
-                select:{
-                    profilePhoto:true,
-                },
+      customer: {
+        select: {
+          id: true,
+          name: true,
+          profile: {
+            select: {
+              profilePhoto: true,
             },
-        }
+          },
+        },
       },
       gearItem: {
         select: {
@@ -99,12 +99,12 @@ const getAllRentalOrdersIntoDb = async () => {
           name: true,
           brand: true,
           pricePerDay: true,
-          provider:{
-            select:{
-                id:true,
-                name:true
-            }
-          }
+          provider: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
         },
       },
     },

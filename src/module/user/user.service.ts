@@ -1,54 +1,49 @@
-import { Status } from "../../../generated/prisma/enums"
-import { prisma } from "../../lib/prisma"
+import { Status } from "@prisma/client";
+import { prisma } from "../../lib/prisma";
 
+const getMyProfileFromDb = async (userId: string) => {
+  const user = await prisma.user.findFirstOrThrow({
+    where: {
+      id: userId,
+    },
+    omit: {
+      password: true,
+    },
+    include: {
+      profile: true,
+    },
+  });
+  return user;
+};
 
-const getMyProfileFromDb = async(userId:string)=>{
-    const user = await prisma.user.findFirstOrThrow({
-        where:{
-            id:userId
+const updateMyProfileIntoDb = async (userId: string, payload: any) => {
+  const { name, email, profilePhoto, bio } = payload;
+
+  const updateUser = await prisma.user.update({
+    where: {
+      id: userId,
+    },
+    data: {
+      name,
+      email,
+      profile: {
+        update: {
+          profilePhoto,
+          bio,
         },
-        omit:{
-            password:true
-        },
-        include:{
-            profile:true,
-        }
-    })
-    return user
-}
+      },
+    },
+    omit: {
+      password: true,
+    },
+    include: {
+      profile: true,
+    },
+  });
+  return updateUser;
+};
 
-const updateMyProfileIntoDb = async (userId:string, payload:any)=>{
-    const {name,email,profilePhoto,bio}= payload;
-
-    const updateUser= await prisma.user.update({
-        where:{
-            id:userId
-        },
-        data:{
-            name,
-            email,
-            profile:{
-                update:{
-                    profilePhoto,
-                    bio
-                }
-            }
-        },
-        omit:{
-            password:true
-        },
-        include:{
-            profile:true
-        }
-    })
-    return updateUser
-}
-
-
-
-
-
-export const userService ={
-    getMyProfileFromDb,
-    updateMyProfileIntoDb,
-}
+export const userService = {
+  getMyProfileFromDb,
+  updateMyProfileIntoDb,
+};
