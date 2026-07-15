@@ -19,4 +19,4 @@ router.patch(
 );
 router.get("/:id", auth(), rentalController.getMyRental);
 
-export const renalRoute = router;
+export const rentalRoute = router;
